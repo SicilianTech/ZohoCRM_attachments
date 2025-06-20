@@ -1,0 +1,37 @@
+recordId = "";
+alist = List();
+attachments = zoho.crm.getRelatedRecords("Attachments","Accounts",recordId);
+for each  record in attachments
+{
+file_id = record.get("id");
+downloadFile = invokeurl
+[
+url :"https://www.zohoapis.com/crm/v6/Accounts/" + recordId + "/Attachments/" + file_id
+type :GET
+connection:"attach"
+];
+downloadFile.setParamName("file");
+info downloadFile;
+
+response = invokeurl
+[
+url :"https://www.zohoapis.com/crm/v6/files"
+type :POST
+files:downloadFile
+connection:"attach"
+];
+info response;
+fid = response.get("data").get(0).get("details").get("id");
+attachmap = Map();
+attachmap.put("id",fid);
+
+alist.add(attachmap );
+}
+sendmail
+[ 
+	from : zoho.adminuserid
+	to : "your_email@gmail.com"
+	subject: "Send attachment"
+	message : "<div>Exercice</div>"
+	attachments : file:alist
+];
